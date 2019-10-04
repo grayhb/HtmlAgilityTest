@@ -3,7 +3,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HtmlAgilityTest
@@ -20,12 +22,12 @@ namespace HtmlAgilityTest
         {
             wp = new WebProxy("10.214.104.214", 3128);
             wp.UseDefaultCredentials = true;
-            //Console.WriteLine(LoadMainPage());
-            testc();
+
+            GetCities();
             Console.Read();
         }
 
-        static void testc()
+        static void GetCities()
         {
             using(WebClient wc = new WebClient())
             {
@@ -47,40 +49,21 @@ namespace HtmlAgilityTest
             using (WebClient wc = new WebClient())
             {
                 wc.Proxy = wp;
-                wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded; charset=UTF-8";
-                wc.Headers[HttpRequestHeader.Cookie] = "_gcl_au=1.1.1726520692.1570016363; _ym_uid=1570016363759045945; _ym_d=1570016363; _ga=GA1.2.586811617.1570016364; 469838ec60a6378c83773a23bb93b954=a88643ff103a75776074ce554acdc929; _ym_isad=1; _gid=GA1.2.965543693.1570163046; _dc_gtm_UA-75857896-1=1";
-                wc.Headers[HttpRequestHeader.Referer] = "https://recyclemap.ru";
-                //wc.Headers[HttpRequestHeader.] = "application/x-www-form-urlencoded";
-                //            city: 28
-                //layer: 0
-                //gos:
-                var vm = new { city = cityId};
+                wc.Headers.Add("origin", "https://recyclemap.ru");
+                wc.Headers.Add("content-length", "7");
+                wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
+                wc.Headers.Add("x-requested-with", "XMLHttpRequest");
 
-                var json = wc.UploadString(RECYCLEMAP_CITY, "POST", JsonConvert.SerializeObject(vm));
-                Console.WriteLine(json);
+                NameValueCollection nameValueCollection = new NameValueCollection();
+                nameValueCollection.Add("city", cityId);
+
+                var json = wc.UploadValues(RECYCLEMAP_CITY, "POST", nameValueCollection);
+
+                Console.WriteLine(Encoding.ASCII.GetString(json));
             }
 
             return null;
         }
 
-        //static string LoadMainPage()
-        //{
-        //    var web = new HtmlWeb();
-        //    var doc = web.Load(RECYCLEMAP);
-
-        //    List<int> cityIds = new List<int>();
-
-        //    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//select[@id='city']//option"))
-        //    {
-        //        //Console.WriteLine("Value=" + node.Attributes["value"].Value);
-        //        //Console.WriteLine("InnerText=" + node.InnerText);
-        //        //Console.WriteLine();
-
-        //        if (int.TryParse(node.Attributes["value"].Value, out int cityId))
-        //            cityIds.Add(cityId);
-        //    }
-
-        //    return "";
-        //}
     }
 }
